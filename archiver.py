@@ -1,9 +1,7 @@
-import re
 import json
-from requests import get
-from bs4 import BeautifulSoup
-from math import ceil
 from pathlib import Path
+from fetcher import Fetcher
+
 
 class Archiver():
     def __init__(self, blog_id):
@@ -11,12 +9,10 @@ class Archiver():
         self.SETTINGS_FILE_DIR = Path(self.BASE_DIR).joinpath("settings.json")
         self._check_settings()
         self.settings = self._load_settings()
-
+        
         self.blog_id = blog_id
+        self.download_dir = self.settings["SETTINGS"]["DOWNLOAD_DIR"]
         self.header = self.settings["SETTINGS"]["HEADERS"]
-        self.total_number_of_posts = None
-        self.posts_list = list()
-        self.image_list = list()
 
     def _check_settings(self):
         if not Path(self.SETTINGS_FILE_DIR).exists(): self._create_settings()
