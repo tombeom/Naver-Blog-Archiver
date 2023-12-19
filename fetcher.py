@@ -102,3 +102,19 @@ class Fetcher():
             except Exception as e:
                 # Post without Image
                 pass
+
+    def download_images(self, post_id):
+        download_dir_by_post = Path(self.download_dir).joinpath(post_id)
+        download_dir_by_post.mkdir(parents=False, exist_ok=True)
+
+        for i in range(int(self.post_data[post_id]["IMAGES"]["IMAGE_COUNT"])):
+            if int(self.post_data[post_id]["IMAGES"]["IMAGE_COUNT"]) != 0:
+                image_url = self.post_data[post_id]["IMAGES"]["IMAGE_SOURCE"][i]
+                file_name = image_url.split("/")[-1]
+                file_name = unquote(file_name)
+
+                image_save_dir = Path(download_dir_by_post).joinpath(file_name)
+                
+                with open(image_save_dir, "wb") as file:
+                    response = get(image_url, headers=self.header)
+                    file.write(response.content)
