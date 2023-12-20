@@ -88,8 +88,14 @@ class Fetcher():
         else:
             post_html = response.content
             parsed_post_html = BeautifulSoup(post_html, "html.parser")
-            post = parsed_post_html.select_one("div.se-main-container")
-            try:
+            editor_version = self._check_editor_version(parsed_post_html)
+
+            if editor_version == "2":
+                post = parsed_post_html.select_one("div#postViewArea")
+            else:
+                post = parsed_post_html.select_one("div.se-main-container")
+
+            if post != None:
                 html_image_sources = post.select("img")
 
                 for edited_image_source in html_image_sources:
@@ -99,9 +105,9 @@ class Fetcher():
 
                 self.post_data[post_id]["IMAGES"] = {"IMAGE_COUNT": f"{len(image_list)}", "IMAGE_SOURCE": image_list}
 
-            except Exception as e:
-                # Post without Image
-                pass
+    def _check_editor_version(self, html):
+        editor_version = html.select_one("div#post_1").get("data-post-editor-version")
+        return editor_version
 
     def download_images(self, post_id):
         download_dir_by_post = Path(self.download_dir).joinpath(post_id)
